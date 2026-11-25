@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% set is_edit = (mode == 'edit') %}
+{% block title %}{{ 'Редагувати альбом' if is_edit else 'Додати альбом' }} — Lely45{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Керування дискографією · Авторизована зона</span>
+    <h1>{{ 'Редагувати «' ~ album.title ~ '»' if is_edit else 'Додати новий альбом' }}</h1>
+    <p class="section-lead">
+      {{ 'Оновіть метадані, обкладинку або треклист платівки.' if is_edit else 'Створіть нову сторінку альбому у базі даних Lely45 / Lyuda Bielousova.' }}
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <form
+      method="POST"
+      enctype="multipart/form-data"
+      class="form-card"
+    >
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label" for="title">Назва альбому *</label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            class="form-control"
+            required
+            placeholder="Наприклад: РЕТРОспектива"
+            value="{{ form_data.get('title', album.title if album else '') }}"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="artist_credit">Ім'я / псевдонім виконавця</label>
+          <input
+            type="text"
+            id="artist_credit"
+            name="artist_credit"
+            class="form-control"
+            placeholder="Lyuda Bielousova (Lely45)"
+            value="{{ form_data.get('artist_credit', album.artist_credit if album else 'Lyuda Bielousova (Lely45)') }}"
+          >
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label" for="release_year">Рік релізу *</label>
+          <input
+            type="number"
+            id="release_year"
+            name="release_year"
+            class="form-control mono"
+            min="1950"
+            max="2100"
+            required
+            placeholder="2026"
+            value="{{ form_data.get('release_year', album.release_year if album else 2026) }}"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="release_date">Точна дата релізу</label>
+          <input
+            type="text"
+            id="release_date"
+            name="release_date"
+            class="form-control"
+            placeholder="30 жовтня 2026"
+            value="{{ form_data.get('release_date', album.release_date if album else '') }}"
+          >
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label" for="genre">Жанр</label>
+          <input
+            type="text"
+            id="genre"
+            name="genre"
+            class="form-control"
+            placeholder="Інді-рок / Альтернативний поп"
+            value="{{ form_data.get('genre', album.genre if album else 'Інді-рок / Альтернативний поп') }}"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="label">Лейбл</label>
+          <input
+            type="text"
+            id="label"
+            name="label"
+            class="form-control"
+            placeholder="Independent / MG Music"
+            value="{{ form_data.get('label', album.label if album else '') }}"
+          >
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label" for="duration">Загальна тривалість</label>
+          <input
+            type="text"
+            id="duration"
+            name="duration"
+            class="form-control"
+            placeholder="32 хв 08 с"
+            value="{{ form_data.get('duration', album.duration if album else '') }}"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="streaming_url">Посилання на стрімінг (Apple Music / Spotify)</label>
+          <input
+            type="url"
+            id="streaming_url"
+            name="streaming_url"
+            class="form-control"
+            placeholder="https://music.apple.com/..."
+            value="{{ form_data.get('streaming_url', album.streaming_url if album else '') }}"
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="tagline">Короткий підзаголовок (слоган релізу)</label>
+        <input
+          type="text"
+          id="tagline"
+          name="tagline"
+          class="form-control"
+          placeholder="Коротка фраза про настрій платівки..."
+          value="{{ form_data.get('tagline', album.tagline if album else '') }}"
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="description">Повний опис альбому *</label>
+        <textarea
+          id="description"
+          name="description"
+          class="form-control"
+          required
+          placeholder="Розкажіть про концепцію, звучання та історію створення альбому..."
+        >{{ form_data.get('description', album.description if album else '') }}</textarea>
+      </div>
+
+      <hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;">
+
+      <div class="form-group">
+        <label class="form-label">Обкладинка альбому</label>
+        <span class="form-hint" style="margin-bottom: 0.75rem;">Оберіть одну зі стилізованих обкладинок, вкажіть URL зображення або завантажте власний файл.</span>
+
+        {% set selected_preset = form_data.get('cover_preset', album.cover_image if (album and not album.cover_is_external) else 'images/cover_retrospektyva.jpg') %}
+        <div class="preset-grid">
+          {% for path, label_text in preset_covers %}
+          <label class="preset-option">
+            <input type="radio" name="cover_preset" value="{{ path }}" {% if selected_preset == path %}checked{% endif %}>
+            <div class="preset-thumb">
+              <img src="{{ url_for('static', filename=path) }}" alt="{{ label_text }}">
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label" for="cover_url">Або URL зовнішньої обкладинки</label>
+          <input
+            type="url"
+            id="cover_url"
+            name="cover_url"
+            class="form-control"
+            placeholder="https://example.com/cover.jpg"
+            value="{{ form_data.get('cover_url', album.cover_image if (album and album.cover_is_external) else '') }}"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="cover_file">Або завантажити файл (PNG / JPG / WEBP)</label>
+          <input type="file" id="cover_file" name="cover_file" class="form-control" accept=".png,.jpg,.jpeg,.webp">
+        </div>
+      </div>
+
+      <hr style="border: none; border-top: 1px solid var(--border); margin: 2rem 0;">
+
+      <div class="form-group">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+          <label class="form-label" style="margin: 0;">Треклист альбому</label>
+          <button type="button" id="addTrackBtn" class="btn btn-ghost btn-sm">+ Додати трек</button>
+        </div>
+
+        <div id="trackEditorList" class="track-editor-list">
+          {% for t_title, t_dur, t_feat in tracks_data %}
+          <div class="track-editor-row">
+            <span class="track-editor-index">{{ '%02d'|format(loop.index) }}</span>
+            <input type="text" name="track_title[]" class="form-control" placeholder="Назва треку" value="{{ t_title }}">
+            <input type="text" name="track_duration[]" class="form-control mono" placeholder="3:20" value="{{ t_dur }}">
+            <input type="text" name="track_featuring[]" class="form-control" placeholder="feat. (необов'язково)" value="{{ t_feat }}">
+            <button type="button" class="btn-icon-remove" title="Видалити трек" aria-label="Видалити трек">&times;</button>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top: 1.5rem;">
+        <label class="checkbox-row">
+          <input
+            type="checkbox"
+            name="is_featured"
+            {% if form_data.get('is_featured') == 'on' or (not form_data and album and album.is_featured) %}checked{% endif %}
+          >
+          <span>Закріпити як головний (флагманський) альбом на сторінці «Головна»</span>
+        </label>
+      </div>
+
+      <div class="action-row" style="margin-top: 2rem;">
+        <button type="submit" class="btn btn-primary">
+          {{ 'Зберегти зміни' if is_edit else 'Створити сторінку альбому' }}
+        </button>
+        <a href="{{ url_for('album_detail', slug=album.slug) if is_edit else url_for('albums_list') }}" class="btn btn-outline">
+          Скасувати
+        </a>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
+

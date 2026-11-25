@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}{{ album.title }} ({{ album.release_year }}) — {{ album.artist_credit }}{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div style="margin-bottom: 1.5rem;">
+      <a href="{{ url_for('albums_list') }}" class="mono" style="font-size: 0.82rem; color: var(--text-muted);">&larr; Назад до всіх альбомів</a>
+    </div>
+
+    <div class="detail-grid">
+      <div>
+        <div class="detail-cover">
+          <img
+            src="{{ album.cover_image if album.cover_is_external else url_for('static', filename=album.cover_image) }}"
+            alt="Обкладинка {{ album.title }}"
+          >
+        </div>
+
+        {% if current_user.is_authenticated %}
+        <div class="action-row" style="margin-top: 1.25rem;">
+          <a href="{{ url_for('album_edit', slug=album.slug) }}" class="btn btn-outline" style="flex: 1;">Редагувати альбом</a>
+          <form
+            action="{{ url_for('album_delete', slug=album.slug) }}"
+            method="POST"
+            style="flex: 1; margin: 0;"
+            data-confirm="Ви впевнені, що хочете назавжди видалити альбом «{{ album.title }}»?"
+          >
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-danger" style="width: 100%;">Видалити</button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+
+      <div>
+        <span class="eyebrow">
+          {% if album.is_featured %}Флагманський альбом · {% endif %}{{ album.artist_credit }}
+        </span>
+        <h1 style="font-size: clamp(2.5rem, 5vw, 4.1rem); margin-bottom: 0.75rem;">
+          {{ album.title }}
+        </h1>
+        {% if album.tagline %}
+          <p style="font-size: 1.12rem; color: var(--text); margin-top: 0; margin-bottom: 1.4rem;">
+            {{ album.tagline }}
+          </p>
+        {% endif %}
+
+        <div class="meta-grid">
+          <div class="meta-box">
+            <span class="meta-box-label">Дата релізу</span>
+            <span class="meta-box-value">{{ album.release_date or album.release_year }}</span>
+          </div>
+          <div class="meta-box">
+            <span class="meta-box-label">Жанр</span>
+            <span class="meta-box-value">{{ album.genre }}</span>
+          </div>
+          <div class="meta-box">
+            <span class="meta-box-label">Тривалість</span>
+            <span class="meta-box-value">{{ album.duration or 'LP' }}</span>
+          </div>
+          <div class="meta-box">
+            <span class="meta-box-label">Лейбл</span>
+            <span class="meta-box-value">{{ album.label or 'Independent' }}</span>
+          </div>
+        </div>
+
+        <div class="prose">
+          {% for paragraph in album.description.split('\n') %}
+            {% if paragraph.strip() %}
+              <p>{{ paragraph.strip() }}</p>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <div class="action-row">
+          {% if album.streaming_url %}
+            <a href="{{ album.streaming_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+              Слухати на стрімінгу &#8599;
+            </a>
+          {% endif %}
+          {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('login', next=request.path) }}" class="btn btn-ghost">
+              Увійти, щоб редагувати сторінку
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="tracklist-panel">
+      <div class="section-head" style="margin-bottom: 1.25rem;">
+        <div>
+          <span class="eyebrow">Треклист платівки</span>
+          <h2 style="font-size: 2rem; margin: 0;">Композиції ({{ album.tracks|length }})</h2>
+        </div>
+        {% if album.author %}
+          <span class="mono" style="font-size: 0.74rem; opacity: 0.65;">
+            Додав(ла): {{ album.author.username }}
+          </span>
+        {% endif %}
+      </div>
+
+      {% if album.tracks %}
+        <div>
+          {% for track in album.tracks %}
+          <div class="track-row">
+            <span class="track-num">{{ '%02d'|format(track.track_number) }}</span>
+            <div>
+              <span class="track-name">{{ track.title }}</span>
+              {% if track.featuring %}
+                <span class="track-feat">{{ track.featuring }}</span>
+              {% endif %}
+            </div>
+            <span class="track-dur">{{ track.duration or '—' }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p style="color: var(--text-muted); margin: 0;">Треклист ще не заповнений. Авторизовані користувачі можуть додати треки через редагування альбому.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% if other_albums %}
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Слухайте також</span>
+        <h2 class="section-title">Інші альбоми в дискографії</h2>
+      </div>
+    </div>
+    <div class="albums-grid">
+      {% for item in other_albums %}
+      <article class="album-card">
+        <a href="{{ url_for('album_detail', slug=item.slug) }}" class="album-cover-wrap">
+          <img src="{{ item.cover_image if item.cover_is_external else url_for('static', filename=item.cover_image) }}" alt="{{ item.title }}" loading="lazy">
+          <span class="album-badge">{{ item.release_year }}</span>
+        </a>
+        <div class="album-body">
+          <span class="album-artist">{{ item.artist_credit }}</span>
+          <h3 class="album-title"><a href="{{ url_for('album_detail', slug=item.slug) }}">{{ item.title }}</a></h3>
+          <div class="album-footer" style="margin-top: auto;">
+            <span>{{ item.tracks|length }} треків</span>
+            <a href="{{ url_for('album_detail', slug=item.slug) }}" class="link-accent">Відкрити &rarr;</a>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Lyuda Bielousova (ex-Lely45) — РЕТРОспектива (2026){% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-bar">
+      <a href="{{ url_for('index') }}" class="brand">
+        <span class="brand-mark" aria-hidden="true">LB</span>
+        <span class="brand-text">
+          <span class="brand-name">Lyuda Bielousova</span>
+          <span class="brand-sub">ex-Lely45</span>
+        </span>
+      </a>
+
+      <button type="button" class="nav-toggle" id="navToggle" aria-label="Меню">&#9776;</button>
+
+      <div class="nav-menu" id="navMenu" style="display: contents;">
+        <nav aria-label="Головна навігація">
+          <ul class="nav-links">
+            <li><a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">Головна</a></li>
+            <li><a href="{{ url_for('albums_list') }}" class="{% if request.endpoint in ['albums_list', 'album_detail', 'album_create', 'album_edit'] %}active{% endif %}">Альбоми ({{ total_albums_count }})</a></li>
+            <li><a href="{{ url_for('history') }}" class="{% if request.endpoint == 'history' %}active{% endif %}">Історія гурту</a></li>
+            <li><a href="{{ url_for('about') }}" class="{% if request.endpoint == 'about' %}active{% endif %}">Про проект</a></li>
+          </ul>
+        </nav>
+
+        <div class="nav-actions">
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for('album_create') }}" class="btn btn-primary btn-sm">+ Додати альбом</a>
+            <span class="user-pill" title="Авторизований користувач">
+              <span class="user-dot"></span>
+              {{ current_user.username }}
+            </span>
+            <form action="{{ url_for('logout') }}" method="POST" style="margin: 0;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-outline btn-sm">Вийти</button>
+            </form>
+          {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-outline btn-sm">Увійти</a>
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Реєстрація</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="container flash-stack">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}" role="alert">
+            <span>{{ message }}</span>
+            <button type="button" class="flash-close" aria-label="Закрити">&times;</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong style="color: var(--text); font-family: var(--font-display); font-size: 0.95rem; letter-spacing: -0.02em;">LYUDA BIELOUSOVA · EX-LELY45</strong>
+        <div class="mono" style="font-size: 0.72rem; margin-top: 0.3rem;">
+          Лабораторна робота №9 · Веб-фреймворк Flask · 2026
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="{{ url_for('index') }}">Головна</a>
+        <a href="{{ url_for('albums_list') }}">Альбоми</a>
+        <a href="{{ url_for('history') }}">Історія</a>
+        <a href="{{ url_for('about') }}">Про проект</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>
+    (function () {
+      const menu = document.getElementById("navMenu");
+      function syncMenu() {
+        if (!menu) return;
+        if (window.innerWidth <= 960) {
+          menu.style.display = "";
+        } else {
+          menu.style.display = "contents";
+          menu.classList.remove("open");
+        }
+      }
+      window.addEventListener("resize", syncMenu);
+      syncMenu();
+    })();
+  </script>
+</body>
+</html>

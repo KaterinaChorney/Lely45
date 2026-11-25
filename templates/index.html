@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Головна — Lyuda Bielousova (ex-Lely45) · РЕТРОспектива (2026){% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-bg" style="background-image: url('{{ url_for('static', filename='images/hero_retrospektyva.jpg') }}');"></div>
+  <div class="hero-overlay"></div>
+
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">Новий альбом · {{ featured_album.release_date if featured_album else '30 жовтня 2026' }}</span>
+      <div class="hero-alias">LYUDA BIELOUSOVA · EX-LELY45</div>
+      <h1 class="hero-title">
+        {% if featured_album %}
+          {{ featured_album.title }} <span>{{ featured_album.release_year }}</span>
+        {% else %}
+          РЕТРОспектива <span>2026</span>
+        {% endif %}
+      </h1>
+      <p class="hero-subtitle">
+        {% if featured_album and featured_album.tagline %}
+          {{ featured_album.tagline }}
+        {% else %}
+          Перша повноформатна платівка Людмили Бєлоусової (Lely45) під її власним ім'ям — десять чесних історій про час, пам'ять і силу музики.
+        {% endif %}
+      </p>
+
+      <div class="hero-cta">
+        {% if featured_album %}
+          <a href="{{ url_for('album_detail', slug=featured_album.slug) }}" class="btn btn-primary">Відкрити альбом &rarr;</a>
+        {% endif %}
+        <a href="{{ url_for('albums_list') }}" class="btn btn-outline">Уся дискографія</a>
+        <a href="{{ url_for('history') }}" class="btn btn-ghost">Історія виконавиці</a>
+      </div>
+
+      <div class="hero-meta-strip">
+        <div class="hero-meta-item">
+          <strong>{{ '%02d'|format(albums|length) }}</strong>
+          <span>Альбомів у каталозі</span>
+        </div>
+        <div class="hero-meta-item">
+          <strong>{{ total_tracks }}</strong>
+          <span>Композицій</span>
+        </div>
+        <div class="hero-meta-item">
+          <strong>2020—2026</strong>
+          <span>Lely45 &rarr; LB</span>
+        </div>
+      </div>
+    </div>
+
+    {% if featured_album %}
+    <a href="{{ url_for('album_detail', slug=featured_album.slug) }}" class="vinyl-showcase" aria-label="Переглянути альбом {{ featured_album.title }}">
+      <div class="vinyl-disc" aria-hidden="true"></div>
+      <div class="vinyl-sleeve">
+        <img
+          src="{{ featured_album.cover_image if featured_album.cover_is_external else url_for('static', filename=featured_album.cover_image) }}"
+          alt="Обкладинка альбому {{ featured_album.title }}"
+        >
+      </div>
+    </a>
+    {% endif %}
+  </div>
+</section>
+
+<div class="marquee-strip" aria-hidden="true">
+  <div class="container marquee-inner">
+    <span>ЛЮДА БЄЛОУСОВА</span>
+    <b>●</b>
+    <span>РЕТРОСПЕКТИВА 2026</span>
+    <b>●</b>
+    <span>EX-LELY45</span>
+    <b>●</b>
+    <span>10 ТРЕКІВ</span>
+    <b>●</b>
+    <span>КИЇВ · УКРАЇНА</span>
+    <b>●</b>
+    <span>LB MUSIC</span>
+  </div>
+</div>
+
+{% if featured_album and featured_album.tracks %}
+<section class="section section-paper">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Офіційний треклист</span>
+        <h2 class="section-title">«{{ featured_album.title }}»</h2>
+        <p class="section-lead">
+          {{ featured_album.tracks|length }} композицій · {{ featured_album.duration or 'Повноформатний LP' }} · {{ featured_album.genre }}
+        </p>
+      </div>
+      <a href="{{ url_for('album_detail', slug=featured_album.slug) }}" class="btn btn-dark btn-sm">Детальніше про реліз &rarr;</a>
+    </div>
+
+    {% set mid = (featured_album.tracks|length + 1) // 2 %}
+    <div class="sides-grid">
+      <div class="side-card">
+        <span class="side-label">Сторона A · 01 — {{ '%02d'|format(mid) }}</span>
+        {% for track in featured_album.tracks[:mid] %}
+          <div class="track-row">
+            <span class="track-num">{{ '%02d'|format(track.track_number) }}</span>
+            <div>
+              <span class="track-name">{{ track.title }}</span>
+              {% if track.featuring %}<span class="track-feat">{{ track.featuring }}</span>{% endif %}
+            </div>
+            <span class="track-dur">{{ track.duration or '—' }}</span>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="side-card">
+        <span class="side-label">Сторона B · {{ '%02d'|format(mid + 1) }} — {{ '%02d'|format(featured_album.tracks|length) }}</span>
+        {% for track in featured_album.tracks[mid:] %}
+          <div class="track-row">
+            <span class="track-num">{{ '%02d'|format(track.track_number) }}</span>
+            <div>
+              <span class="track-name">{{ track.title }}</span>
+              {% if track.featuring %}<span class="track-feat">{{ track.featuring }}</span>{% endif %}
+            </div>
+            <span class="track-dur">{{ track.duration or '—' }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Дискографія</span>
+        <h2 class="section-title">Альбоми Lely45 та Lyuda Bielousova</h2>
+        <p class="section-lead">Усі релізи, що зберігаються в базі даних Flask. Авторизовані користувачі можуть додавати нові платівки та редагувати наявні.</p>
+      </div>
+      <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('album_create') }}" class="btn btn-primary btn-sm">+ Додати альбом</a>
+        {% endif %}
+        <a href="{{ url_for('albums_list') }}" class="btn btn-outline btn-sm">Переглянути всі</a>
+      </div>
+    </div>
+
+    <div class="albums-grid">
+      {% for album in albums %}
+      <article class="album-card">
+        <a href="{{ url_for('album_detail', slug=album.slug) }}" class="album-cover-wrap">
+          <img
+            src="{{ album.cover_image if album.cover_is_external else url_for('static', filename=album.cover_image) }}"
+            alt="Обкладинка {{ album.title }}"
+            loading="lazy"
+          >
+          <span class="album-badge {% if album.is_featured %}album-badge-featured{% endif %}">
+            {% if album.is_featured %}NEW · {{ album.release_year }}{% else %}{{ album.release_year }}{% endif %}
+          </span>
+        </a>
+        <div class="album-body">
+          <span class="album-artist">{{ album.artist_credit }}</span>
+          <h3 class="album-title">
+            <a href="{{ url_for('album_detail', slug=album.slug) }}">{{ album.title }}</a>
+          </h3>
+          <p class="album-excerpt">{{ album.tagline or album.description }}</p>
+          <div class="album-footer">
+            <span>{{ album.tracks|length }} треків</span>
+            <a href="{{ url_for('album_detail', slug=album.slug) }}" class="link-accent">Відкрити &rarr;</a>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="quote-banner">
+      <div class="quote-big-num">LB</div>
+      <div>
+        <blockquote>
+          «Привіт, я Люда. Я пишу й співаю свої пісні. Відмова від псевдоніма Lely45 і вихід альбому “РЕТРОспектива” під власним ім'ям — це крок до внутрішньої свободи й чесної розмови зі слухачем».
+        </blockquote>
+        <cite>Людмила Бєлоусова · РЕТРОспектива · Київ, 2026</cite>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

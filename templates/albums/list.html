@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Альбоми — Дискографія Lely45 / Lyuda Bielousova{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container" style="display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+    <div>
+      <span class="eyebrow">Каталог релізів</span>
+      <h1>Альбоми</h1>
+      <p class="section-lead">
+        Повна дискографія Lely45 та Lyuda Bielousova. Натисніть на будь-яку платівку, щоб відкрити її сторінку з описом і треклистом.
+      </p>
+    </div>
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('album_create') }}" class="btn btn-primary">+ Додати новий альбом</a>
+    {% else %}
+      <a href="{{ url_for('login') }}" class="btn btn-outline">Увійти для керування альбомами</a>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="filter-bar">
+      <form action="{{ url_for('albums_list') }}" method="GET" class="search-form">
+        <input
+          type="text"
+          name="q"
+          class="form-control"
+          style="max-width: 340px;"
+          placeholder="Пошук за назвою, жанром чи описом..."
+          value="{{ query_text }}"
+        >
+        {% if year_filter %}
+          <input type="hidden" name="year" value="{{ year_filter }}">
+        {% endif %}
+        <button type="submit" class="btn btn-ghost btn-sm">Шукати</button>
+        {% if query_text or year_filter %}
+          <a href="{{ url_for('albums_list') }}" class="btn btn-outline btn-sm">Скинути</a>
+        {% endif %}
+      </form>
+
+      <div class="year-pills">
+        <a href="{{ url_for('albums_list', q=query_text) if query_text else url_for('albums_list') }}" class="pill {% if not year_filter %}active{% endif %}">Усі роки</a>
+        {% for yr in available_years %}
+          <a href="{{ url_for('albums_list', year=yr, q=query_text) if query_text else url_for('albums_list', year=yr) }}" class="pill {% if year_filter == yr|string %}active{% endif %}">{{ yr }}</a>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if albums %}
+      <div class="albums-grid">
+        {% for album in albums %}
+        <article class="album-card">
+          <a href="{{ url_for('album_detail', slug=album.slug) }}" class="album-cover-wrap">
+            <img
+              src="{{ album.cover_image if album.cover_is_external else url_for('static', filename=album.cover_image) }}"
+              alt="Обкладинка альбому {{ album.title }}"
+              loading="lazy"
+            >
+            <span class="album-badge {% if album.is_featured %}album-badge-featured{% endif %}">
+              {% if album.is_featured %}NEW · {{ album.release_year }}{% else %}{{ album.release_year }}{% endif %}
+            </span>
+          </a>
+          <div class="album-body">
+            <span class="album-artist">{{ album.artist_credit }}</span>
+            <h3 class="album-title">
+              <a href="{{ url_for('album_detail', slug=album.slug) }}">{{ album.title }}</a>
+            </h3>
+            <p class="album-excerpt">{{ album.tagline or album.description }}</p>
+            <div class="album-footer">
+              <span>{{ album.tracks|length }} треків · {{ album.genre.split('/')[0]|trim }}</span>
+              <div style="display: flex; gap: 0.65rem; align-items: center;">
+                {% if current_user.is_authenticated %}
+                  <a href="{{ url_for('album_edit', slug=album.slug) }}" style="color: var(--text-secondary);" title="Редагувати">Ред.</a>
+                {% endif %}
+                <a href="{{ url_for('album_detail', slug=album.slug) }}" class="link-accent">Деталі &rarr;</a>
+              </div>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="info-card" style="text-align: center; padding: 3.5rem 1.5rem;">
+        <h3>Альбомів не знайдено</h3>
+        <p>За вашим запитом у дискографії поки немає збігів.</p>
+        <div style="margin-top: 1.25rem; display: flex; justify-content: center; gap: 0.75rem;">
+          <a href="{{ url_for('albums_list') }}" class="btn btn-outline">Показати всі альбоми</a>
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for('album_create') }}" class="btn btn-primary">+ Додати альбом</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+

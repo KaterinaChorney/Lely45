@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Про проект — Лабораторна робота №9 (Flask){% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Лабораторна робота №9 · №11. Робота з Flask</span>
+    <h1>Про проект</h1>
+    <p class="section-lead">
+      Веб-сайт музичної виконавиці <strong>Lely45 (Людмили Бєлоусової / Lyuda Bielousova)</strong> із фокусом на релізі 2026 року «РЕТРОспектива», розроблений на базі Python та мікрофреймворку Flask.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="feature-grid" style="margin-bottom: 2.5rem;">
+      <div class="info-card">
+        <span class="eyebrow">Мета роботи</span>
+        <h3>Ознайомлення з Flask</h3>
+        <p>
+          Навчитися створювати повноцінні веб-застосунки на Python із маршрутизацією, шаблонізатором Jinja2, роботою з реляційною базою даних (ORM SQLAlchemy), автентифікацією користувачів і розгортанням у хмарі.
+        </p>
+      </div>
+
+      <div class="info-card">
+        <span class="eyebrow">Функціональність</span>
+        <h3>CRUD & Авторизація</h3>
+        <ul>
+          <li>Сторінки «Головна», «Про проект», «Історія гурту» та окремі сторінки альбомів.</li>
+          <li>Реєстрація та вхід користувачів через <code>Flask-Login</code>.</li>
+          <li>Додавання, редагування та видалення альбомів і треклистів для авторизованих користувачів.</li>
+          <li>Пошук і фільтрація дискографії за роком випуску.</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <span class="eyebrow">Стан бази даних</span>
+        <h3>Живі показники</h3>
+        <ul>
+          <li>Альбомів у базі: <strong style="color: var(--text);">{{ stats.albums }}</strong></li>
+          <li>Треків у каталозі: <strong style="color: var(--text);">{{ stats.tracks }}</strong></li>
+          <li>Зареєстрованих користувачів: <strong style="color: var(--text);">{{ stats.users }}</strong></li>
+        </ul>
+        <div class="tech-tags">
+          <span class="tech-tag">Python 3</span>
+          <span class="tech-tag">Flask 3.1</span>
+          <span class="tech-tag">SQLAlchemy</span>
+          <span class="tech-tag">Flask-Login</span>
+          <span class="tech-tag">Flask-WTF CSRF</span>
+          <span class="tech-tag">Gunicorn</span>
+          <span class="tech-tag">Render / Heroku</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <span class="eyebrow">Архітектура застосунку</span>
+      <h3>Структура та безпека проекту</h3>
+      <div class="form-grid-2" style="margin-top: 1.2rem;">
+        <div>
+          <p>
+            <strong>Бекенд (MVC / App Factory):</strong> файл <code>app.py</code> ініціалізує Flask-додаток, маршрути та обробники помилок; <code>models.py</code> описує пов'язані моделі <code>User</code>, <code>Album</code> та <code>Track</code> (зв'язок 1-до-багатьох із каскадним видаленням); <code>seed.py</code> автоматично наповнює базу стартовою дискографією Lely45.
+          </p>
+          <p>
+            <strong>Захист даних:</strong> усі паролі хешуються засобами <code>Werkzeug</code> (не зберігаються у відкритому вигляді), усі POST-форми захищені CSRF-токенами (<code>Flask-WTF</code>), а модифікація альбомів закрита декоратором <code>@login_required</code>.
+          </p>
+        </div>
+        <div>
+          <p>
+            <strong>Фронтенд:</strong> адаптивна контрастна тема на чистому CSS3 в естетиці офіційного сайту <code>lb-music.com.ua</code> із типографікою <em>Unbounded + Manrope</em> та JavaScript-конструктором треклиста без важких зовнішніх бібліотек.
+          </p>
+          <p>
+            <strong>Хмарне розгортання:</strong> проект містить <code>Procfile</code>, <code>render.yaml</code>, <code>runtime.txt</code> та <code>requirements.txt</code> із WSGI-сервером <code>gunicorn</code> і автоматичною підтримкою як локальної SQLite, так і хмарної PostgreSQL через змінну <code>DATABASE_URL</code>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

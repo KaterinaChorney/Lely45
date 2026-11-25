@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Історія гурту / виконавиці — Lely45 (Людмила Бєлоусова){% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Історія гурту · Шлях артистки</span>
+    <h1>Від Lely45 до Lyuda Bielousova</h1>
+    <p class="section-lead">
+      Біографія та творча еволюція української співачки, авторки пісень і режисерки Людмили Бєлоусової — від київської театральної сцени й вірусних відео до великого альбому «РЕТРОспектива» (2026).
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="timeline">
+      <article class="timeline-item">
+        <span class="timeline-year">2000 — 2017 · КИЇВ, ТРОЄЩИНА</span>
+        <h3>Дитинство, народна пісня та театр</h3>
+        <p>
+          Людмила Сергіївна Бєлоусова народилася 27 вересня 2000 року в Києві. З раннього дитинства музика була поруч — вона співала вдома з бабусею та займалася у шкільному ансамблі «Червона калина». Згодом колектив переріс у театральну студію, що відкрило в ній пристрасть до акторства й режисури: підліткою Люда вже брала участь у незалежних перформансах на «Гогольфесті» та в «Театрі переселенця».
+        </p>
+      </article>
+
+      <article class="timeline-item">
+        <span class="timeline-year">2017 — 2020 · НАКККіМ & TIKTOK</span>
+        <h3>Режисерська освіта і народження проєкту Lely45</h3>
+        <p>
+          У 2017 році Людмила вступила на режисерське відділення Національної академії керівних кадрів культури і мистецтв. Під час карантину 2020 року вона почала ділитися короткими акустичними відео та власними напрацюваннями у TikTok — щирий вокал із впізнаваним надривом миттєво привернув увагу тисяч слухачів. Того ж року розпочалася співпраця з лейблом MG Music.
+        </p>
+      </article>
+
+      <article class="timeline-item">
+        <span class="timeline-year">2021 · ПРОРИВ НА СЦЕНІ</span>
+        <h3>Хіт «Вісім», світовий Shazam та номінація YUNA</h3>
+        <p>
+          У 2021 році Lely45 стрімко увірвалася в чарти завдяки синглам «Біля гори», «Голосними» та «Вісім» (останній потрапив до світового чарту Shazam). Артистка відіграла перший сольний концерт, випустила дебютні релізи та отримала номінацію на премію YUNA у категорії «Відкриття року».
+        </p>
+      </article>
+
+      <article class="timeline-item">
+        <span class="timeline-year">2022 · УКРАЇНОМОВНИЙ ЕТАП</span>
+        <h3>«Коли сонце сідає за схил» і переосмислення творчості</h3>
+        <p>
+          Після початку повномасштабної війни артистка повністю перейшла на українську мову. Вийшов її перший повноформатний україномовний альбом «Коли сонце сідає за схил», а також релізи «Труднощі перекладу» й «Артгаус». Її тексти стали ще глибшими, поєднуючи інтимну рефлексію з досвідом покоління, що живе в часи війни.
+        </p>
+      </article>
+
+      <article class="timeline-item">
+        <span class="timeline-year">2023 · ІНДІ-РОК ТА ВИЗНАННЯ</span>
+        <h3>«Всі дівчата хороші», «Чорний лебідь» та гучні колаборації</h3>
+        <p>
+          2023 рік закріпив за Lely45 статус однієї з найяскравіших фігур української альтернативної сцени. Альбом «Всі дівчата хороші» отримав номінацію «Альбом року» на Megogo Music Awards 2023, а темна й театральна платівка «Чорний лебідь» показала нову грань її звучання. Серед знакових колаборацій — «Автомагістралі» із SadSvit та «Радісно» з Артемом Пивоваровим.
+        </p>
+      </article>
+
+      <article class="timeline-item" style="border-color: var(--red);">
+        <span class="timeline-year">ВЕРЕСЕНЬ — ЖОВТЕНЬ 2026 · НОВА ГЛАВА</span>
+        <h3>Повернення до власного імені та альбом «РЕТРОспектива»</h3>
+        <p>
+          У вересні 2026 року Людмила офіційно попрощалася зі сценічним псевдонімом Lely45 і почала випускати музику під власним ім'ям — <strong>Lyuda Bielousova</strong>. Вже 30 жовтня 2026 року відбувся реліз її першої повноформатної платівки в новій ері — <strong>«РЕТРОспектива»</strong> з 10 композицій, що відкривається треком «переслідувати час» і завершується пронизливим зізнанням «я люблю тебе музико».
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Хронологія релізів</span>
+        <h2 class="section-title">Ключові альбоми в нашому каталозі</h2>
+      </div>
+      <a href="{{ url_for('albums_list') }}" class="btn btn-outline btn-sm">Усі альбоми &rarr;</a>
+    </div>
+
+    <div class="albums-grid">
+      {% for album in albums %}
+      <article class="album-card">
+        <a href="{{ url_for('album_detail', slug=album.slug) }}" class="album-cover-wrap">
+          <img src="{{ album.cover_image if album.cover_is_external else url_for('static', filename=album.cover_image) }}" alt="{{ album.title }}" loading="lazy">
+          <span class="album-badge">{{ album.release_year }}</span>
+        </a>
+        <div class="album-body">
+          <span class="album-artist">{{ album.artist_credit }}</span>
+          <h3 class="album-title"><a href="{{ url_for('album_detail', slug=album.slug) }}">{{ album.title }}</a></h3>
+          <p class="album-excerpt">{{ album.tagline or album.description }}</p>
+          <div class="album-footer">
+            <span>{{ album.tracks|length }} треків</span>
+            <a href="{{ url_for('album_detail', slug=album.slug) }}" class="link-accent">Сторінка альбому &rarr;</a>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
